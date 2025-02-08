@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use App\Booking;
 use Illuminate\Http\Request;
 
 class ClientsController extends Controller
@@ -28,7 +29,6 @@ class ClientsController extends Controller
         $userId = auth()->user()->id;
         $client = Client::where('user_id', $userId)
             ->where('id', $client)
-            ->with('bookings')
             ->with('journals')
             ->first();
 
@@ -60,5 +60,29 @@ class ClientsController extends Controller
             ->delete();
 
         return 'Deleted';
+    }
+
+    public function bookings($client)
+    {
+        $start = request()->get('start');
+        $end = request()->get('end');
+
+        $client = Client::where('id', $client)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        $bookings = Booking::where('client_id', $client->id)
+            ->where(function ($query) use ($start, $end) {
+                $query->orderBy('start', 'desc');       
+                if ($start) {
+                    $query->where('end', '<', $start);
+                }
+                if ($end) {
+                    $query->where('start', '>', $end);
+                }
+            })
+            ->get();
+
+        return response()->json($bookings);
     }
 }

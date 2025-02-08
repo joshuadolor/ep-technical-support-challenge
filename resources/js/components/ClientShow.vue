@@ -35,15 +35,59 @@
 
             <div class="w-2/3">
                 <div>
-                    <button class="btn" :class="{'btn-primary': currentTab == 'bookings', 'btn-default': currentTab != 'bookings'}" @click="switchTab('bookings')">Bookings</button>
-                    <button class="btn" :class="{'btn-primary': currentTab == 'journals', 'btn-default': currentTab != 'journals'}" @click="switchTab('journals')">Journals</button>
+                    <button
+                        class="btn"
+                        :class="{
+                            'btn-primary': currentTab == 'bookings',
+                            'btn-default': currentTab != 'bookings'
+                        }"
+                        @click="switchTab('bookings')"
+                    >
+                        Bookings
+                    </button>
+                    <button
+                        class="btn"
+                        :class="{
+                            'btn-primary': currentTab == 'journals',
+                            'btn-default': currentTab != 'journals'
+                        }"
+                        @click="switchTab('journals')"
+                    >
+                        Journals
+                    </button>
                 </div>
 
                 <!-- Bookings -->
-                <div class="bg-white rounded p-4" v-if="currentTab == 'bookings'">
+                <div
+                    class="bg-white rounded p-4"
+                    v-if="currentTab == 'bookings'"
+                >
                     <h3 class="mb-3">List of client bookings</h3>
 
-                    <template v-if="client.bookings && client.bookings.length > 0">
+                    <div class="mb-3">
+                        <button
+                            class="btn mr-2"
+                            :class="{
+                                'btn-primary': bookingFilter === 'active',
+                                'btn-default': bookingFilter !== 'active'
+                            }"
+                            @click="bookingFilter = 'active'"
+                        >
+                            Active Bookings
+                        </button>
+                        <button
+                            class="btn"
+                            :class="{
+                                'btn-primary': bookingFilter === 'past',
+                                'btn-default': bookingFilter !== 'past'
+                            }"
+                            @click="bookingFilter = 'past'"
+                        >
+                            Past Bookings
+                        </button>
+                    </div>
+
+                    <template v-if="bookings && bookings.length > 0">
                         <table>
                             <thead>
                                 <tr>
@@ -53,11 +97,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="booking in client.bookings" :key="booking.id">
-                                    <td>{{ booking.start }} - {{ booking.end }}</td>
+                                <tr
+                                    v-for="booking in bookings"
+                                    :key="booking.id"
+                                    class="border-b border-gray-200"
+                                >
+                                    <td>
+                                        {{ booking.startDate }}
+                                        <div>to</div>
+                                        {{ booking.endDate }}
+                                    </td>
                                     <td>{{ booking.notes }}</td>
                                     <td>
-                                        <button class="btn btn-danger btn-sm" @click="deleteBooking(booking)">Delete</button>
+                                        <button
+                                            class="btn btn-danger btn-sm"
+                                            @click="deleteBooking(booking)"
+                                        >
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -115,17 +172,20 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
+import Booking from "../model/Booking";
 
 export default {
-    name: 'ClientShow',
+    name: "ClientShow",
 
-    props: ['client'],
+    props: ["client"],
 
     data() {
         return {
-            currentTab: 'bookings',
-            journals: []
+            currentTab: "bookings",
+            journals: [],
+            bookings: [],
+            bookingFilter: "active"
         };
     },
 
@@ -146,10 +206,26 @@ export default {
 
                 this.journals = this.journals.filter(j => j.id != journal.id);
 
-                window.alert('Journal deleted');
+                window.alert("Journal deleted");
             } catch (error) {
-                window.alert('An error occurred while deleting the journal');
+                window.alert("An error occurred while deleting the journal");
             }
+        },
+        async fetchBookings() {
+            const start = this.bookingFilter == "active" ? null : new Date();
+            const end = this.bookingFilter == "past" ? null : new Date();
+
+            const response = await axios.get(
+                `/clients/${this.client.id}/bookings`,
+                {
+                    params: {
+                        start,
+                        end
+                    }
+                }
+            );
+            this.bookings =
+                response?.data.map(booking => new Booking(booking)) || [];
         }
     },
 
@@ -160,6 +236,19 @@ export default {
                 this.journals = newClient.journals;
             },
             immediate: true
+        },
+        currentTab: {
+            immediate: true,
+            handler(newTab) {
+                if (newTab == "bookings") {
+                    this.fetchBookings(this.bookingFilter);
+                }
+            }
+        },
+        bookingFilter: {
+            handler(newFilter) {
+                this.fetchBookings(newFilter);
+            }
         }
     }
 };
