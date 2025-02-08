@@ -17,6 +17,7 @@ Welcome to the EasyPractice tech challenge! Below you'll find a list of tasks to
 <span style="color:red">**Important**: Please DO NOT submit a Pull Request to the original repo, fork this one and submit a PR on your own repo :)</span>
 
 ## Technical Support Challenge - Assessment Objectives
+
 This technical support challenge evaluates candidates' ability to handle real-world support scenarios. We assess how candidates prioritize issues by distinguishing between critical system problems and individual user requests. Candidates should demonstrate clear problem-solving methodology, explain their thinking process, and justify their decisions about resource allocation.
 
 Key evaluation areas include priority assessment, systematic problem analysis, solution development, and communication skills. We look for balanced judgment that considers both technical feasibility and business impact. While there are no strictly "right" answers, responses should show logical thinking and the ability to explain technical concepts clearly.
@@ -27,8 +28,10 @@ The challenge helps us identify candidates who can effectively troubleshoot issu
 
 Please tackle each ticket in a different commit if possible.
 
-### Support Ticket: Client Booking Visibility Issue 
-- [ ] Please fix the ticket and update it with findings and proposed solution:
+### Support Ticket: Client Booking Visibility Issue
+
+-   [x] Please fix the ticket and update it with findings and proposed solution:
+
 ```
 Priority: Critical
 
@@ -48,8 +51,17 @@ What do I need help with now?:
 Need guidance on troubleshooting why the booking data isn't being displayed.
 ```
 
+**Solution:**
+
+1. Root Cause: bookings of client is not included in the client object
+2. Proposed Solution: include bookings to the client object
+3. Files Modified:
+    - app/Http/Controllers/ClientsController.php
+
 ### Support Ticket: Client Deletion Status Unclear
-- [ ] Please fix the ticket and update it with findings and proposed solution:
+
+-   [x] Please fix the ticket and update it with findings and proposed solution:
+
 ```
 Priority: Medium
 
@@ -67,8 +79,23 @@ Example from the user (if necessary):
 What do I need help with now?:
 Need the development team to add some kind of message or indication that lets users know when a client has been successfully deleted. Right now users are unsure if their action worked or not.
 ```
+
+**Solution:**
+
+1. Root Cause: Frontend code is not showing a message or changing the UI to indicate that a client has been deleted
+2. Proposed Solution: show a message and update the table after successful deletion
+3. Files Modified:
+    - resources/js/components/ClientsList.vue
+4. Additional Findings:
+    - Delete query does not check if the client to be deleted is owned by the user
+    - Solution: update the query for client deletion to check if the client is owned by the user
+    - Files Modified:
+        - app/Http/Controllers/ClientsController.php
+
 ### SECURITY VULNERABILITY: Client Privacy Concern
-- [ ] Please fix the ticket and update it with findings and proposed solution:
+
+-   [x] Please fix the ticket and update it with findings and proposed solution:
+
 ```
 Priority: Urgent
 
@@ -87,8 +114,18 @@ What do I need help with now?:
 Need the technical team to implement proper privacy controls so users can only see their own clients or clients they're specifically assigned to. This is urgent as it's a privacy concern for our business.
 ```
 
+**Solution:**
+
+1. Root Cause: No client-user relationship is defined in the database, so all users can see all clients
+2. Proposed Solution: Create a client-user relationship in the database, adjust the query for client retrieval to only return clients that are owned by the user
+3. Files Modified:
+    - app/Http/Controllers/ClientsController.php
+    - database/migrations/2025_02_08_115249_update_clients_table.php
+
 ### Support Ticket: Request for Booking Timeline Filter
-- [ ] Please fix the ticket and update it with findings and proposed solution:
+
+-   [ ] Please fix the ticket and update it with findings and proposed solution:
+
 ```
 Priority: Low
 
@@ -110,8 +147,18 @@ Need assessment from the technical team on:
 3. If this should be prioritized given that only one user has requested it and the current system, while less convenient, still allows users to access all booking information
 ```
 
+**Solution:**
+
+1. Root Cause: No issue, this is a feature request
+2. Solution: Coordinate with the user and explain the current system and how it works and tell them that this is a feature request for the future and then talk to the PM or development team if we want to implement it
+3. Proposed Solution (if we want to implement it):
+    - Implement querying of bookings by date range on the backend ( /?start_date=2025-01-01&end_date=2025-01-31 )
+    - Apply the date range filter on the frontend
+
 ### Support Ticket: System "Freezes" During Client Updates
-- [ ] Please fix the ticket and update it with findings and proposed solution:
+
+-   [x] Please fix the ticket and update it with findings and proposed solution:
+
 ```
 Priority: Low
 
@@ -136,6 +183,20 @@ Need guidance on whether this is:
 
 Note: User mentioned they're working from home using satellite internet, and the issue seems to happen more when their connection is slow.
 ```
+
+**Solution:**
+
+1. Root Cause: Currently we do not have an update feature for clients.
+2. Digging deeper: while we dont have an update feature for clients, we do have a create feature for clients and testing it resulted to the same outcome as reported by the user.
+3. Root Cause: There was a typo on creating a user.
+4. Proposed Solution: fix the typo on creating a user
+5. Files Modified:
+    - app/Http/Controllers/ClientsController.php
+6. Additional Findings:
+    - client creation does not include the user_id of the user creating the client
+    - Solution: update the client creation query to include the user_id of the user creating the client
+    - Files Modified:
+        - app/Http/Controllers/ClientsController.php
 
 ## Thank You!
 
