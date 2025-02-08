@@ -2,7 +2,9 @@
     <div>
         <h1>
             Clients
-            <a href="/clients/create" class="float-right btn btn-primary">+ New Client</a>
+            <a href="/clients/create" class="float-right btn btn-primary"
+                >+ New Client</a
+            >
         </h1>
 
         <table class="table">
@@ -22,8 +24,22 @@
                     <td>{{ client.phone }}</td>
                     <td>{{ client.bookings_count }}</td>
                     <td>
-                        <a class="btn btn-primary btn-sm" :href="`/clients/${client.id}`">View</a>
-                        <button class="btn btn-danger btn-sm" @click="deleteClient(client)">Delete</button>
+                        <a
+                            class="btn btn-primary btn-sm"
+                            :href="`/clients/${client.id}`"
+                            >View</a
+                        >
+                        <a
+                            class="btn btn-info btn-sm"
+                            :href="`/clients/${client.id}/journals`"
+                            >View Journals</a
+                        >
+                        <button
+                            class="btn btn-danger btn-sm"
+                            @click="deleteClient(client)"
+                        >
+                            Delete
+                        </button>
                     </td>
                 </tr>
             </tbody>
@@ -32,17 +48,23 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-    name: 'ClientsList',
+    name: "ClientsList",
 
-    props: ['clients'],
+    props: ["clients"],
 
     methods: {
-        deleteClient(client) {
-            axios.delete(`/clients/${client.id}`);
+        async deleteClient(client) {
+            try {
+                await axios.delete(`/clients/${client.id}`);
+                this.clients = this.clients.filter(c => c.id !== client.id);
+                window.alert("Client deleted");
+            } catch (error) {
+                window.alert("An error occurred while deleting the client");
+            }
         }
     }
-}
+};
 </script>
